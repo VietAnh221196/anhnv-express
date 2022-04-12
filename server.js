@@ -1,21 +1,28 @@
-var express = require('express');
-var mysql = require('mysql'); 
-var app = express();
+const express = require("express");
+const cors = require("cors");
+const app = express();
 
-var pool = mysql.createPool({
-host: 'localhost',
-user: 'root',
-password: null,
-database: 'practice_01',
-});
-app.get('/user', function(req, res){
+var corsOptions = {
+  origin: "http://localhost:8080"
+};
+app.use(cors(corsOptions));
+// parse requests of content-type - application/json
+app.use(express.json());
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+// simple route
+const db = require("./app/models");
+db.sequelize.sync();
 
-var sql = 'SELECT * FROM `cities`';
-pool.query(sql, function(error, result){
-if (error) throw error;
-console.log('– USER TABLE — ' , result);
-res.json(result); 
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to vietnam." });
 });
+
+require("./app/routes/cities2.routes")(app);
+
+// set port, listen for requests
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
 });
-app.listen('2244','127.0.0.1');
-console.log('—– server is listening —–');
